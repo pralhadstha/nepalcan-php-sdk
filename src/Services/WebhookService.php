@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace OmniCargo\NepalCan\Services;
 
+use OmniCargo\NepalCan\Exceptions\WebhookException;
 use OmniCargo\NepalCan\Resources\Webhook;
 
 final class WebhookService
@@ -13,7 +14,7 @@ final class WebhookService
         $data = json_decode($payload, true);
 
         if ($data === null) {
-            throw new \InvalidArgumentException('Invalid JSON payload');
+            throw WebhookException::invalidPayload();
         }
 
         return Webhook::fromArray($data);

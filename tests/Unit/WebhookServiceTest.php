@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace OmniCargo\NepalCan\Tests\Unit;
 
+use OmniCargo\NepalCan\Exceptions\WebhookException;
 use OmniCargo\NepalCan\Resources\Webhook;
 use OmniCargo\NepalCan\Services\WebhookService;
 use OmniCargo\NepalCan\Tests\TestCase;
@@ -20,12 +21,8 @@ final class WebhookServiceTest extends TestCase
 
     public function test_parse_single_order_webhook(): void
     {
-        $payload = json_encode([
-            'order_id' => '123456',
-            'status' => 'Delivered',
-            'timestamp' => '2024-01-15T10:30:00Z',
-            'event' => 'delivery_completed',
-        ]);
+        $fixture = $this->loadFixture('webhook_single_order.json');
+        $payload = json_encode($fixture);
 
         $webhook = $this->service->parse($payload);
 
@@ -40,12 +37,8 @@ final class WebhookServiceTest extends TestCase
 
     public function test_parse_bulk_order_webhook(): void
     {
-        $payload = json_encode([
-            'order_ids' => ['123456', '123457', '123458'],
-            'status' => 'Dispatched',
-            'timestamp' => '2024-01-15T10:30:00Z',
-            'event' => 'order_dispatched',
-        ]);
+        $fixture = $this->loadFixture('webhook_bulk_order.json');
+        $payload = json_encode($fixture);
 
         $webhook = $this->service->parse($payload);
 
@@ -57,13 +50,8 @@ final class WebhookServiceTest extends TestCase
 
     public function test_parse_test_webhook(): void
     {
-        $payload = json_encode([
-            'event' => 'order.status.changed',
-            'order_id' => 'TEST-123456',
-            'status' => 'In Transit',
-            'timestamp' => '2024-01-15T10:30:00Z',
-            'test' => true,
-        ]);
+        $fixture = $this->loadFixture('webhook_test_payload.json');
+        $payload = json_encode($fixture);
 
         $webhook = $this->service->parse($payload);
 
@@ -73,7 +61,7 @@ final class WebhookServiceTest extends TestCase
 
     public function test_parse_invalid_json_throws(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(WebhookException::class);
         $this->expectExceptionMessage('Invalid JSON payload');
 
         $this->service->parse('not valid json');
@@ -89,19 +77,13 @@ final class WebhookServiceTest extends TestCase
 
     public function test_is_bulk_detection(): void
     {
-        $single = $this->service->parseFromArray([
-            'order_id' => '123',
-            'status' => 'Delivered',
-            'event' => 'delivery_completed',
-            'timestamp' => '2024-01-15T10:30:00Z',
-        ]);
+        $single = $this->service->parseFromArray(
+            $this->loadFixture('webhook_single_order.json')
+        );
 
-        $bulk = $this->service->parseFromArray([
-            'order_ids' => ['123', '456'],
-            'status' => 'Dispatched',
-            'event' => 'order_dispatched',
-            'timestamp' => '2024-01-15T10:30:00Z',
-        ]);
+        $bulk = $this->service->parseFromArray(
+            $this->loadFixture('webhook_bulk_order.json')
+        );
 
         $this->assertFalse($single->isBulk());
         $this->assertTrue($bulk->isBulk());
