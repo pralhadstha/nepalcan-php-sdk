@@ -1,9 +1,37 @@
 {
     "name": "pralhadstha/nepal-can-php-sdk",
-    "description": "PHP SDK for Nepal Can Move (NCM) shipping API",
+    "description": "PHP SDK for Nepal Can Move (NCM) shipping and courier API - order creation, tracking, webhooks, COD, and delivery management for Nepal",
     "type": "library",
     "license": "MIT",
-    "keywords": ["ncm", "nepal-can-move", "shipping", "logistics", "nepal", "php-sdk"],
+    "homepage": "https://github.com/pralhadstha/nepal-can-php-sdk",
+    "keywords": [
+        "ncm",
+        "nepal-can-move",
+        "shipping",
+        "logistics",
+        "nepal",
+        "php-sdk",
+        "courier",
+        "delivery",
+        "cod",
+        "cash-on-delivery",
+        "webhook",
+        "tracking",
+        "ecommerce",
+        "api-client",
+        "guzzle"
+    ],
+    "authors": [
+        {
+            "name": "Pralhad Shrestha",
+            "email": "pralhadstha@gmail.com",
+            "role": "Developer"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/pralhadstha/nepal-can-php-sdk/issues",
+        "source": "https://github.com/pralhadstha/nepal-can-php-sdk"
+    },
     "require": {
         "php": "^8.1",
         "guzzlehttp/guzzle": "^7.0"

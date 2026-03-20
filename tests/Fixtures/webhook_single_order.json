@@ -1,0 +1,6 @@
+{
+    "order_id": "123456",
+    "status": "Delivered",
+    "timestamp": "2024-01-15T10:30:00Z",
+    "event": "delivery_completed"
+}

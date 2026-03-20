@@ -1,6 +1,53 @@
 # Nepal Can Move (NCM) PHP SDK
 
-A PHP SDK for integrating with the Nepal Can Move shipping API.
+[![PHP Version](https://img.shields.io/packagist/php-v/pralhadstha/nepal-can-php-sdk)](https://packagist.org/packages/pralhadstha/nepal-can-php-sdk)
+[![Latest Version](https://img.shields.io/packagist/v/pralhadstha/nepal-can-php-sdk)](https://packagist.org/packages/pralhadstha/nepal-can-php-sdk)
+[![License](https://img.shields.io/packagist/l/pralhadstha/nepal-can-php-sdk)](https://packagist.org/packages/pralhadstha/nepal-can-php-sdk)
+
+A PHP SDK for integrating with the [Nepal Can Move (NCM)](https://nepalcanmove.com) shipping and courier API. Manage shipments, track orders, calculate delivery rates, handle COD (Cash on Delivery) payments, and receive real-time webhook notifications for your e-commerce platform in Nepal.
+
+## Table of Contents
+
+- [Features](#features)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Usage](#usage)
+  - [Branches](#branches)
+  - [Shipping Rates](#shipping-rates)
+  - [Create Order](#create-order)
+  - [Get Order Details](#get-order-details)
+  - [Order Comments](#order-comments)
+  - [Tracking](#tracking)
+  - [Returns & Exchanges](#returns--exchanges)
+  - [Tickets](#tickets)
+  - [Staff](#staff)
+- [Webhooks](#webhooks)
+  - [Event Dispatcher](#event-dispatcher)
+  - [Laravel Example](#laravel-example)
+  - [Idempotency](#idempotency)
+- [Error Handling](#error-handling)
+- [API Limits](#api-limits)
+- [Testing](#testing)
+- [Code Style](#code-style)
+- [Changelog](#changelog)
+- [Contributing](#contributing)
+- [Credits](#credits)
+- [License](#license)
+
+## Features
+
+- **Shipment Management** - Create, find, return, exchange, and redirect orders
+- **Order Tracking** - Status history and bulk status checks
+- **Rate Calculation** - Delivery charges for 4 delivery types (Door2Door, Branch2Door, Door2Branch, Branch2Branch)
+- **Branch Listing** - Get all NCM branches with contact details and covered areas
+- **COD Support** - Cash on delivery charge management and COD transfer tickets
+- **Webhook Integration** - Parse incoming webhooks with typed resources and event dispatcher
+- **Support Tickets** - Create and manage vendor support tickets
+- **Staff Management** - List and search vendor staff members
+- **Type-Safe** - Immutable resource objects with readonly properties
+- **Well Tested** - Comprehensive test suite with mocked HTTP responses
+- **PSR-12 Compliant** - Enforced via PHP-CS-Fixer
 
 ## Requirements
 
@@ -13,18 +60,20 @@ A PHP SDK for integrating with the Nepal Can Move shipping API.
 composer require pralhadstha/nepal-can-php-sdk
 ```
 
-## Quick Start
+## Configuration
 
 ```php
 use OmniCargo\NepalCan\Client;
 use OmniCargo\NepalCan\Config;
 
-// Sandbox (default)
+// Sandbox environment (default)
 $client = new Client('your-api-token');
 
-// Production
+// Production environment
 $client = new Client('your-api-token', Config::BASE_URL_PRODUCTION);
 ```
+
+> **Note:** Request your API token from NCM's IT Admin. Sandbox and production environments use separate tokens.
 
 ## Usage
 
@@ -174,32 +223,127 @@ foreach ($result['results'] as $staff) {
 }
 ```
 
-### Webhooks
+## Webhooks
+
+NCM sends HTTP POST requests to your configured webhook URL when order status changes occur. This SDK provides typed parsing via `$client->webhooks->parse()`, User-Agent validation via `$client->webhooks->isValidUserAgent()`, and an event dispatcher for clean webhook handling.
+
+### Event Dispatcher
+
+Use the `EventDispatcher` to route webhook events to handler classes instead of if/else chains:
 
 ```php
-// Parse incoming webhook payload
-$payload = file_get_contents('php://input');
-$webhook = $client->webhooks->parse($payload);
+use OmniCargo\NepalCan\Webhooks\EventDispatcher;
+use OmniCargo\NepalCan\Webhooks\WebhookEvent;
+use OmniCargo\NepalCan\Webhooks\WebhookHandlerInterface;
+use OmniCargo\NepalCan\Resources\Webhook;
 
-if ($webhook->isTest) {
-    // Handle test webhook
+// Create a handler
+class DeliveryCompletedHandler implements WebhookHandlerInterface
+{
+    public function handle(Webhook $webhook): void
+    {
+        // Update order status in your system
+    }
 }
 
-echo $webhook->event;    // e.g., 'delivery_completed'
-echo $webhook->status;   // e.g., 'Delivered'
-echo $webhook->orderId;  // Single order
-echo $webhook->orderIds; // Bulk orders (array)
+// Register handlers and dispatch
+$dispatcher = new EventDispatcher();
+$dispatcher
+    ->subscribe(WebhookEvent::DELIVERY_COMPLETED, new DeliveryCompletedHandler())
+    ->subscribe(WebhookEvent::ORDER_DISPATCHED, new OrderDispatchedHandler());
 
-// Validate User-Agent
-$isValid = $client->webhooks->isValidUserAgent($_SERVER['HTTP_USER_AGENT'] ?? '');
+$webhook = $client->webhooks->parse($payload);
+$dispatcher->dispatch($webhook);
+```
+
+### Laravel Example
+
+A complete example of handling NCM webhooks in a Laravel application:
+
+```php
+// routes/api.php
+use Illuminate\Http\Request;
+use OmniCargo\NepalCan\Client;
+use OmniCargo\NepalCan\Webhooks\EventDispatcher;
+use OmniCargo\NepalCan\Webhooks\WebhookEvent;
+
+Route::post('/webhooks/ncm', function (Request $request) {
+    $client = new Client(config('services.ncm.token'));
+
+    // Validate the request is from NCM
+    if (!$client->webhooks->isValidUserAgent($request->userAgent())) {
+        abort(403, 'Invalid webhook source');
+    }
+
+    // Parse the webhook payload
+    $webhook = $client->webhooks->parse($request->getContent());
+
+    // Handle test webhooks
+    if ($webhook->isTest) {
+        return response()->json(['status' => 'test received']);
+    }
+
+    // Dispatch to handler classes
+    $dispatcher = new EventDispatcher();
+    $dispatcher
+        ->subscribe(WebhookEvent::DELIVERY_COMPLETED, new DeliveryCompletedHandler())
+        ->subscribe(WebhookEvent::ORDER_DISPATCHED, new OrderDispatchedHandler())
+        ->subscribe(WebhookEvent::PICKUP_COMPLETED, new PickupCompletedHandler());
+
+    $dispatcher->dispatch($webhook);
+
+    return response()->json(['status' => 'received']);
+});
+```
+
+```php
+// app/Webhooks/DeliveryCompletedHandler.php
+use OmniCargo\NepalCan\Resources\Webhook;
+use OmniCargo\NepalCan\Webhooks\WebhookHandlerInterface;
+
+class DeliveryCompletedHandler implements WebhookHandlerInterface
+{
+    public function handle(Webhook $webhook): void
+    {
+        Order::where('ncm_order_id', $webhook->orderId)
+            ->update(['status' => $webhook->status, 'delivered_at' => now()]);
+    }
+}
 ```
 
 Supported webhook events:
-- `pickup_completed` - Order picked up
-- `sent_for_delivery` - Order sent for delivery
-- `order_dispatched` - Order dispatched from origin branch
-- `order_arrived` - Order arrived at destination branch
-- `delivery_completed` - Order delivered
+- `WebhookEvent::PICKUP_COMPLETED` - Order picked up
+- `WebhookEvent::SENT_FOR_DELIVERY` - Order sent for delivery
+- `WebhookEvent::ORDER_DISPATCHED` - Order dispatched from origin branch
+- `WebhookEvent::ORDER_ARRIVED` - Order arrived at destination branch
+- `WebhookEvent::DELIVERY_COMPLETED` - Order delivered
+
+### Idempotency
+
+NCM may send duplicate webhook notifications. Your application should handle this by tracking processed webhooks to avoid processing the same event twice:
+
+```php
+class DeliveryCompletedHandler implements WebhookHandlerInterface
+{
+    public function handle(Webhook $webhook): void
+    {
+        // Create a unique key from the webhook data
+        $idempotencyKey = $webhook->orderId . ':' . $webhook->event . ':' . $webhook->timestamp;
+
+        // Skip if already processed
+        if (ProcessedWebhook::where('idempotency_key', $idempotencyKey)->exists()) {
+            return;
+        }
+
+        // Process the webhook
+        Order::where('ncm_order_id', $webhook->orderId)
+            ->update(['status' => $webhook->status]);
+
+        // Mark as processed
+        ProcessedWebhook::create(['idempotency_key' => $idempotencyKey]);
+    }
+}
+```
 
 ## Error Handling
 
@@ -230,6 +374,45 @@ try {
 - Order Creation: 1,000 per day
 - Order View (Detail, Comments, Status): 20,000 per day
 
+## Testing
+
+Run the test suite:
+
+```bash
+vendor/bin/phpunit
+```
+
+## Code Style
+
+This project follows PSR-12 coding standards enforced via [PHP-CS-Fixer](https://github.com/PHP-CS-Fixer/PHP-CS-Fixer).
+
+```bash
+# Check for style violations
+composer cs-check
+
+# Auto-fix style violations
+composer cs-fix
+```
+
+## Changelog
+
+Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## Credits
+
+- [Pralhad Shrestha](https://github.com/pralhadstha)
+- [Nepal Can Move (NCM)](https://nepalcanmove.com) - Shipping & Courier API Provider
+
 ## License
 
-MIT
+The MIT License (MIT). Please see [LICENSE](LICENSE) file for more information.
