@@ -16,8 +16,8 @@ composer require pralhadstha/nepal-can-php-sdk
 ## Quick Start
 
 ```php
-use NepalCanMove\Client;
-use NepalCanMove\Config;
+use OmniCargo\NepalCan\Client;
+use OmniCargo\NepalCan\Config;
 
 // Sandbox (default)
 $client = new Client('your-api-token');
@@ -42,7 +42,7 @@ foreach ($branches as $branch) {
 ### Shipping Rates
 
 ```php
-use NepalCanMove\Services\RateService;
+use OmniCargo\NepalCan\Services\RateService;
 
 $rate = $client->rates->calculate('TINKUNE', 'BIRATNAGAR', RateService::TYPE_PICKUP_COLLECT);
 
@@ -144,7 +144,7 @@ $client->shipments->redirect(4041, [
 ### Tickets
 
 ```php
-use NepalCanMove\Services\TicketService;
+use OmniCargo\NepalCan\Services\TicketService;
 
 // Create a general ticket
 $ticket = $client->tickets->create(TicketService::TYPE_GENERAL, 'Please arrange delivery at the earliest');
@@ -204,10 +204,10 @@ Supported webhook events:
 ## Error Handling
 
 ```php
-use NepalCanMove\Exceptions\ApiException;
-use NepalCanMove\Exceptions\AuthenticationException;
-use NepalCanMove\Exceptions\ValidationException;
-use NepalCanMove\Exceptions\NotFoundException;
+use OmniCargo\NepalCan\Exceptions\ApiException;
+use OmniCargo\NepalCan\Exceptions\AuthenticationException;
+use OmniCargo\NepalCan\Exceptions\ValidationException;
+use OmniCargo\NepalCan\Exceptions\NotFoundException;
 
 try {
     $order = $client->shipments->find(99999);
