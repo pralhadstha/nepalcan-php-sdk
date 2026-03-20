@@ -12,7 +12,8 @@ final class Rate
         public readonly string $type,
         public readonly string $charge,
         public readonly array $rawData
-    ) {}
+    ) {
+    }
 
     public static function fromArray(array $data, string $origin = '', string $destination = '', string $type = ''): self
     {

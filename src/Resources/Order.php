@@ -13,7 +13,8 @@ final class Order
         public readonly string $lastDeliveryStatus,
         public readonly string $paymentStatus,
         public readonly array $rawData
-    ) {}
+    ) {
+    }
 
     public static function fromArray(array $data): self
     {

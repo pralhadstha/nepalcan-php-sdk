@@ -14,7 +14,8 @@ final class Webhook
         public readonly string $timestamp,
         public readonly bool $isTest,
         public readonly array $rawData
-    ) {}
+    ) {
+    }
 
     public static function fromArray(array $data): self
     {

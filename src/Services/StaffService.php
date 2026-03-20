@@ -32,7 +32,7 @@ final class StaffService
 
         $staffList = Mapper::mapArray(
             $response['results'] ?? [],
-            fn(array $data) => Staff::fromArray($data)
+            fn (array $data) => Staff::fromArray($data)
         );
 
         return [

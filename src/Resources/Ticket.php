@@ -10,7 +10,8 @@ final class Ticket
         public readonly int $ticketId,
         public readonly string $message,
         public readonly array $rawData
-    ) {}
+    ) {
+    }
 
     public static function fromArray(array $data): self
     {

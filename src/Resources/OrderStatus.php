@@ -11,7 +11,8 @@ final class OrderStatus
         public readonly string $status,
         public readonly string $addedTime,
         public readonly array $rawData
-    ) {}
+    ) {
+    }
 
     public static function fromArray(array $data): self
     {

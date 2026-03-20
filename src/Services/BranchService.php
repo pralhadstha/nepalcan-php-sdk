@@ -22,6 +22,6 @@ final class BranchService
     {
         $response = $this->http->get('/api/v2/branches');
 
-        return Mapper::mapArray($response, fn(array $data) => Branch::fromArray($data));
+        return Mapper::mapArray($response, fn (array $data) => Branch::fromArray($data));
     }
 }

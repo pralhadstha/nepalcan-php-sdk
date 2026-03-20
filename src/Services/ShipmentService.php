@@ -32,7 +32,7 @@ final class ShipmentService
     {
         $response = $this->http->get('/api/v1/order', ['id' => $orderId]);
 
-        return Mapper::mapSingle($response, fn(array $data) => Order::fromArray($data));
+        return Mapper::mapSingle($response, fn (array $data) => Order::fromArray($data));
     }
 
     /** @return OrderComment[] */
@@ -40,7 +40,7 @@ final class ShipmentService
     {
         $response = $this->http->get('/api/v1/order/comment', ['id' => $orderId]);
 
-        return Mapper::mapArray($response, fn(array $data) => OrderComment::fromArray($data));
+        return Mapper::mapArray($response, fn (array $data) => OrderComment::fromArray($data));
     }
 
     /** @return OrderComment[] */
@@ -48,7 +48,7 @@ final class ShipmentService
     {
         $response = $this->http->get('/api/v1/order/getbulkcomments');
 
-        return Mapper::mapArray($response, fn(array $data) => OrderComment::fromArray($data));
+        return Mapper::mapArray($response, fn (array $data) => OrderComment::fromArray($data));
     }
 
     public function addComment(int $orderId, string $comment): array

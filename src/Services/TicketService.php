@@ -29,7 +29,7 @@ final class TicketService
             'message' => $message,
         ]);
 
-        return Mapper::mapSingle($response, fn(array $data) => Ticket::fromArray($data));
+        return Mapper::mapSingle($response, fn (array $data) => Ticket::fromArray($data));
     }
 
     public function createCodTransfer(string $bankName, string $accountName, string $accountNumber): Ticket
@@ -40,13 +40,13 @@ final class TicketService
             'bankAccountNumber' => $accountNumber,
         ]);
 
-        return Mapper::mapSingle($response, fn(array $data) => Ticket::fromArray($data));
+        return Mapper::mapSingle($response, fn (array $data) => Ticket::fromArray($data));
     }
 
     public function close(int $ticketId): Ticket
     {
         $response = $this->http->post("/api/v2/vendor/ticket/close/{$ticketId}");
 
-        return Mapper::mapSingle($response, fn(array $data) => Ticket::fromArray($data));
+        return Mapper::mapSingle($response, fn (array $data) => Ticket::fromArray($data));
     }
 }

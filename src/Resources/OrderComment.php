@@ -12,7 +12,8 @@ final class OrderComment
         public readonly string $addedBy,
         public readonly string $addedTime,
         public readonly array $rawData
-    ) {}
+    ) {
+    }
 
     public static function fromArray(array $data): self
     {

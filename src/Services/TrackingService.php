@@ -22,7 +22,7 @@ final class TrackingService
     {
         $response = $this->http->get('/api/v1/order/status', ['id' => $orderId]);
 
-        return Mapper::mapArray($response, fn(array $data) => OrderStatus::fromArray($data));
+        return Mapper::mapArray($response, fn (array $data) => OrderStatus::fromArray($data));
     }
 
     /** @return array<string, string> */

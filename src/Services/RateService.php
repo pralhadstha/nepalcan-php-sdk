@@ -30,6 +30,6 @@ final class RateService
             'type' => $type,
         ]);
 
-        return Mapper::mapSingle($response, fn(array $data) => Rate::fromArray($data, $origin, $destination, $type));
+        return Mapper::mapSingle($response, fn (array $data) => Rate::fromArray($data, $origin, $destination, $type));
     }
 }

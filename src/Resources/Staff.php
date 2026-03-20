@@ -12,7 +12,8 @@ final class Staff
         public readonly string $email,
         public readonly string $phone,
         public readonly array $rawData
-    ) {}
+    ) {
+    }
 
     public static function fromArray(array $data): self
     {

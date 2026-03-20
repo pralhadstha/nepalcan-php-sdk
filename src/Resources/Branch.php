@@ -14,7 +14,8 @@ final class Branch
         public readonly string $region,
         public readonly array $coveredAreas,
         public readonly array $rawData
-    ) {}
+    ) {
+    }
 
     public static function fromArray(array $data): self
     {
