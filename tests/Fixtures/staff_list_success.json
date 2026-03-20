@@ -1,0 +1,19 @@
+{
+    "count": 45,
+    "next": "https://demo.nepalcanmove.com/api/v2/vendor/staffs?page=2",
+    "previous": null,
+    "results": [
+        {
+            "id": 12,
+            "name": "Ram Sharma",
+            "email": "ram@example.com",
+            "phone": "9841234567"
+        },
+        {
+            "id": 13,
+            "name": "Sita Thapa",
+            "email": "sita@example.com",
+            "phone": "9851234567"
+        }
+    ]
+}

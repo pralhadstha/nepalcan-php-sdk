@@ -1,0 +1,18 @@
+[
+    {
+        "id": 1,
+        "name": "TINKUNE",
+        "phone": "01-4567890",
+        "district": "Kathmandu",
+        "region": "Bagmati",
+        "covered_areas": ["Baneshwor", "Koteshwor", "Tinkune"]
+    },
+    {
+        "id": 2,
+        "name": "BIRATNAGAR",
+        "phone": "021-456789",
+        "district": "Morang",
+        "region": "Koshi",
+        "covered_areas": ["Biratnagar", "Rangeli"]
+    }
+]

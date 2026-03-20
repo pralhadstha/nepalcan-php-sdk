@@ -1,0 +1,22 @@
+[
+    {
+        "orderid": 134,
+        "status": "Delivered",
+        "added_time": "2019-10-18T13:24:30.960365+05:45"
+    },
+    {
+        "orderid": 134,
+        "status": "Sent for Delivery",
+        "added_time": "2019-10-18T13:22:21.033595+05:45"
+    },
+    {
+        "orderid": 134,
+        "status": "Pickup Complete",
+        "added_time": "2019-10-18T13:17:25.326792+05:45"
+    },
+    {
+        "orderid": 134,
+        "status": "Pickup Order Created",
+        "added_time": "2019-10-15T11:32:18.149352+05:45"
+    }
+]
