@@ -164,6 +164,18 @@ foreach ($statuses as $status) {
     echo $status->addedTime;
 }
 
+// Track by tracking ID
+$tracking = $client->tracking->track('8D634706B3394C3');
+
+echo $tracking->trackId;
+echo $tracking->lastDeliveryStatus;
+echo $tracking->receiver;
+echo $tracking->destination;
+
+foreach ($tracking->statusHistory as $status) {
+    echo $status; // "Pickup Order Created - 2026-03-23 04:43 AM"
+}
+
 // Bulk status check
 $result = $client->tracking->getBulkStatuses([4041, 3855, 4032]);
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace OmniCargo\NepalCan\Tests\Unit;
 
 use OmniCargo\NepalCan\Resources\OrderStatus;
+use OmniCargo\NepalCan\Resources\TrackingDetail;
 use OmniCargo\NepalCan\Services\TrackingService;
 use OmniCargo\NepalCan\Tests\TestCase;
 
@@ -39,5 +40,27 @@ final class TrackingServiceTest extends TestCase
         $this->assertEquals('Pickup Order Created', $result['result']['4041']);
         $this->assertEquals('Delivered', $result['result']['3841']);
         $this->assertContains(4042, $result['errors']);
+    }
+
+    public function test_track_by_tracking_id_success(): void
+    {
+        $fixture = $this->loadFixture('track_by_tracking_id_success.json');
+        $http = $this->mockHttpClient($fixture);
+
+        $service = new TrackingService($http);
+        $tracking = $service->track('8D634706B3394C3');
+
+        $this->assertInstanceOf(TrackingDetail::class, $tracking);
+        $this->assertEquals('8D634706B3394C3', $tracking->trackId);
+        $this->assertEquals('Pickup Order Created', $tracking->lastDeliveryStatus);
+        $this->assertEquals('Demo Vendor', $tracking->vendor);
+        $this->assertEquals('Saroj Tamang', $tracking->receiver);
+        $this->assertEquals('9842227083', $tracking->receiverPhone);
+        $this->assertEquals('TINKUNE', $tracking->destination);
+        $this->assertEquals('1.00', $tracking->weight);
+        $this->assertEquals('99.00', $tracking->deliveryCharge);
+        $this->assertEquals('3208.00', $tracking->codCharge);
+        $this->assertCount(1, $tracking->statusHistory);
+        $this->assertEquals('Pickup Order Created - 2026-03-23 04:43 AM', $tracking->statusHistory[0]);
     }
 }

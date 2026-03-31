@@ -6,6 +6,7 @@ namespace OmniCargo\NepalCan\Services;
 
 use OmniCargo\NepalCan\Http\HttpClient;
 use OmniCargo\NepalCan\Resources\OrderStatus;
+use OmniCargo\NepalCan\Resources\TrackingDetail;
 use OmniCargo\NepalCan\Support\Mapper;
 
 final class TrackingService
@@ -36,5 +37,12 @@ final class TrackingService
             'result' => $response['result'] ?? [],
             'errors' => $response['errors'] ?? [],
         ];
+    }
+
+    public function track(string $trackingId): TrackingDetail
+    {
+        $response = $this->http->get('/api/v1/order/track', ['trackingid' => $trackingId]);
+
+        return Mapper::mapSingle($response, fn (array $data) => TrackingDetail::fromArray($data));
     }
 }

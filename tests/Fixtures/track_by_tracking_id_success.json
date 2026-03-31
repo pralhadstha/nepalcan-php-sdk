@@ -1,0 +1,18 @@
+{
+    "details": {
+        "trackid": "8D634706B3394C3",
+        "last_delivery_status": "Pickup Order Created",
+        "vendor": "Demo Vendor",
+        "vendor_phone": "9821413030",
+        "receiver": "Saroj Tamang",
+        "receiver_phone": "9842227083",
+        "receiver_address": 990,
+        "destination": "TINKUNE",
+        "weight": "1.00",
+        "delivery_charge": "99.00",
+        "cod_charge": "3208.00"
+    },
+    "status": [
+        "Pickup Order Created - 2026-03-23 04:43 AM"
+    ]
+}
