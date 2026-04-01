@@ -24,7 +24,7 @@ A PHP SDK for integrating with the [Nepal Can Move (NCM)](https://nepalcanmove.c
   - [Staff](#staff)
 - [Webhooks](#webhooks)
   - [Event Dispatcher](#event-dispatcher)
-  - [Laravel Example](#laravel-example)
+  - [Laravel](#laravel)
   - [Idempotency](#idempotency)
 - [Error Handling](#error-handling)
 - [API Limits](#api-limits)
@@ -268,60 +268,17 @@ $webhook = $client->webhooks->parse($payload);
 $dispatcher->dispatch($webhook);
 ```
 
-### Laravel Example
+### Laravel
 
-A complete example of handling NCM webhooks in a Laravel application:
+For Laravel applications, use the official Laravel wrapper which provides service provider, facade, config publishing, and artisan commands out of the box:
 
-```php
-// routes/api.php
-use Illuminate\Http\Request;
-use OmniCargo\NepalCan\Client;
-use OmniCargo\NepalCan\Webhooks\EventDispatcher;
-use OmniCargo\NepalCan\Webhooks\WebhookEvent;
+**[pralhadstha/nepalcan-laravel](https://github.com/pralhadstha/nepalcan-laravel)** - Official Laravel wrapper for Nepal Can Move SDK
 
-Route::post('/webhooks/ncm', function (Request $request) {
-    $client = new Client(config('services.ncm.token'));
-
-    // Validate the request is from NCM
-    if (!$client->webhooks->isValidUserAgent($request->userAgent())) {
-        abort(403, 'Invalid webhook source');
-    }
-
-    // Parse the webhook payload
-    $webhook = $client->webhooks->parse($request->getContent());
-
-    // Handle test webhooks
-    if ($webhook->isTest) {
-        return response()->json(['status' => 'test received']);
-    }
-
-    // Dispatch to handler classes
-    $dispatcher = new EventDispatcher();
-    $dispatcher
-        ->subscribe(WebhookEvent::DELIVERY_COMPLETED, new DeliveryCompletedHandler())
-        ->subscribe(WebhookEvent::ORDER_DISPATCHED, new OrderDispatchedHandler())
-        ->subscribe(WebhookEvent::PICKUP_COMPLETED, new PickupCompletedHandler());
-
-    $dispatcher->dispatch($webhook);
-
-    return response()->json(['status' => 'received']);
-});
+```bash
+composer require pralhadstha/nepalcan-laravel
 ```
 
-```php
-// app/Webhooks/DeliveryCompletedHandler.php
-use OmniCargo\NepalCan\Resources\Webhook;
-use OmniCargo\NepalCan\Webhooks\WebhookHandlerInterface;
-
-class DeliveryCompletedHandler implements WebhookHandlerInterface
-{
-    public function handle(Webhook $webhook): void
-    {
-        Order::where('ncm_order_id', $webhook->orderId)
-            ->update(['status' => $webhook->status, 'delivered_at' => now()]);
-    }
-}
-```
+If you prefer using the SDK directly without the Laravel wrapper, you can still use this package in any PHP application including Laravel.
 
 Supported webhook events:
 - `WebhookEvent::PICKUP_COMPLETED` - Order picked up
